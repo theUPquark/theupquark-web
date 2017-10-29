@@ -34,7 +34,7 @@ public class AppController {
   @RequestMapping("/query/{server}/{character}/")
   @ResponseBody
   public String query(@PathVariable(value="server") String server, @PathVariable(value="character") String character) {
-    return this.wowAchievementAdapter.queryAchievements(character, server);
+    return this.wowAchievementAdapter.queryAchievements(character, server, this.apiKey);
   }
 
 

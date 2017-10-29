@@ -16,4 +16,12 @@ public class WebAppSettings {
   public WebAppSettings() {
     this.users = new ArrayList<>();
   }
+
+  public void setUsers(List<BNetAccount> users) {
+    this.users = users;
+  }
+
+  public List<BNetAccount> getUsers() {
+    return this.users;
+  }
 }
