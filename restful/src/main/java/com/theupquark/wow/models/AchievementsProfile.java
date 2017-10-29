@@ -22,7 +22,7 @@ public class AchievementsProfile {
    *    achievementsCompleted: IDs
    *    achievementsCompletedTimestamp: times
    *    criteria: no idea
-   *
+   */
   public AchievementsProfile() {
     this.lastModified = 0;
     this.name = "";
