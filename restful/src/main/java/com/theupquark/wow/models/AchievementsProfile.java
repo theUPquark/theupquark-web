@@ -39,4 +39,16 @@ public class AchievementsProfile {
   public Map<String, List<String>> getAchievements() {
     return this.achievements;
   }
+
+  public Achievement getAchievementByIndex(int index) {
+    if (index > this.achievements.get("achievementsCompleted").size() - 1) {
+      System.out.println("Tried to Access achievement outside index range");
+      return null;
+    }
+    Achievement achievement = new Achievement();
+    achievement.setId(this.achievements.get("achievementsCompleted").get(index));
+    achievement.setTime(this.achievements.get("achievementsCompletedTimestamp").get(index));
+
+    return achievement;
+  }
 }

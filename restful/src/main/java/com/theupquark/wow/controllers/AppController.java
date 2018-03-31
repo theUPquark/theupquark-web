@@ -1,7 +1,11 @@
 package com.theupquark.wow.controllers;
 
 import com.theupquark.wow.adapters.WowAchievementAdapter;
+import com.theupquark.wow.models.Achievement;
+import com.theupquark.wow.models.AchievementsProfile;
 import com.theupquark.wow.models.WebAppSettings;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.*;
@@ -24,17 +28,17 @@ public class AppController {
   }
 
 
-  @RequestMapping("/process")
+  @RequestMapping("/test")
   @ResponseBody
-  String home() {
-      return apiKey;
+  public List<Achievement> test() {
+      return this.wowAchievementAdapter.test(this.apiKey);
   }
 
 
   @RequestMapping("/query/{server}/{character}/")
   @ResponseBody
-  public String query(@PathVariable(value="server") String server, @PathVariable(value="character") String character) {
-    return this.wowAchievementAdapter.queryAchievements(character, server, this.apiKey);
+  public AchievementsProfile query(@PathVariable(value="server") String server, @PathVariable(value="character") String character) {
+    return this.wowAchievementAdapter.queryAchievementsProfile(character, server, this.apiKey);
   }
 
 

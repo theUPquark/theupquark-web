@@ -1,5 +1,6 @@
 package com.theupquark.wow.models;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,29 +8,29 @@ import java.util.Objects;
 public class Achievement {
 
   //milliseconds
-  private long time;
-  private long id;
+  private String time;
+  private String id;
   private List<Character> earnedBy;
 
   public Achievement() {
-    this.time = 0;
-    this.id = 0;
+    this.time = "0";
+    this.id = "0";
     this.earnedBy = new ArrayList<>();
   }
 
-  public void setTime(long time) {
+  public void setTime(String time) {
     this.time = time;
   }
 
-  public long getTime() {
+  public String getTime() {
     return this.time;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
   }
 
-  public long getId() {
+  public String getId() {
     return this.id;
   }
 
@@ -43,8 +44,17 @@ public class Achievement {
 
   public boolean equals(Achievement other) {
     if (other instanceof Achievement) {
-      return Objects.equals(this.time, other.time)
+
+      return this.timeTolerance(this.time, other.time)
         && Objects.equals(this.id, other.id);
+    }
+    return false;
+  }
+
+  public static boolean timeTolerance(String first, String second) {
+    long difference = Long.parseLong(first) - Long.parseLong(second);
+    if (Math.abs(difference) <= 60000) {
+      return true;
     }
     return false;
   }

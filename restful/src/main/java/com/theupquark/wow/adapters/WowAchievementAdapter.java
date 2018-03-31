@@ -10,6 +10,9 @@ import com.theupquark.wow.models.WebAppSettings;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WowAchievementAdapter {
 
@@ -34,7 +37,7 @@ public class WowAchievementAdapter {
                 apiKey)).toURL(), AchievementsProfile.class);
 
 
-      return "AchievementProfile for with " + achievementProfile.getAchievements().get("achievementsCompleted").size() + "achievement entries.";
+      return "AchievementProfile for with " + achievementProfile.getAchievements().get("achievementsCompleted").size() + " achievement entries.";
 
     } catch (Throwable t) {
       System.out.println(t.getMessage());
@@ -54,7 +57,6 @@ public class WowAchievementAdapter {
                 name, 
                 apiKey)).toURL(), AchievementsProfile.class);
 
-
       return achievementProfile;
 
     } catch (Throwable t) {
@@ -71,11 +73,7 @@ public class WowAchievementAdapter {
     List<Achievement> achievements = new ArrayList<>();
 
     for (int i = 0; i < achievementsCompleted; i++) {
-      Achievement achievement = new Achievement();
-      achievement.setId(Long.parseLong(
-            achievementsProfile.getAchievements().get("achievementsCompleted").get(i)));
-      achievement.setTime(Long.parseLong(
-            achievementsProfile.getAchievements().get("achievementsCompletedTimestamp").get(i)));
+      Achievement achievement = achievementsProfile.getAchievementByIndex(i);
       //TODO Add character name/server to each achievement
       //achievement.setEarnedBy(new ArrayList<>().add(new Character()));
       achievements.add(achievement);
@@ -85,46 +83,66 @@ public class WowAchievementAdapter {
   }
 
 
-  public List<Achievement> compare(WebAppSettings webAppSettings, String apiKey) {
+  public List<Achievement> compare(List<Character> characters, String apiKey) {
 
-    List<List<Achievement>> separatedAchievements = new ArrayList<>();
+    List<List<Achievement>> list = new ArrayList<>();
 
-    for (BNetAccount account : webAppSettings.getUsers()) {
-      for (String server : account.getCharacterMap().keySet()) {
-        List<String> characterList = account.getCharacterMap().get(server);
-        List<Achievement> accountAchievements = new ArrayList<>();
-
-        for (String character : characterList) {
-          accountAchievements.addAll(
-              this.mapAchievements(this.queryAchievementsProfile(character, server, apiKey)));
-        }
-        separatedAchievements.add(accountAchievements);
-      }
+    for (Character character : characters) {
+      List<Achievement> achievementList = this.mapAchievements(this.queryAchievementsProfile(
+            character.getName(), character.getServer(), apiKey
+            ));
+      list.add(achievementList); 
     }
-    
-    
 
-    return this.obtainDuplicates(separatedAchievements);
+
+    return this.obtainDuplicates(list);
   }
 
+  public List<Achievement> test(String apiKey) {
+    List<Character> characters = new ArrayList<>();
+    Character tuei = new Character();
+    tuei.setServer("argent-dawn");
+    tuei.setName("errai");
+    
+    Character rhetaiya = new Character();
+    rhetaiya.setServer("argent-dawn");
+    rhetaiya.setName("rhetaiya");
 
-  public List<Achievement> obtainDuplicates(List<List<Achievement>> separatedAchievements) {
-    List<Achievement> duplicates = new ArrayList<>();
-    int userCount = separatedAchievements.size();
+    characters.add(tuei);
+    characters.add(rhetaiya);
 
-    if (userCount < 2) {
-      return duplicates;
+    return this.compare(characters, apiKey);
+  }
+
+  public List<Achievement> obtainDuplicates(List<List<Achievement>> listOfLists) {
+
+    for (List<Achievement> list : listOfLists) {
+      System.out.println("List with " + list.size() + " achievements");
     }
+    // Use the first list as a baseline
+    List<Achievement> duplicates = new ArrayList<>();
+    List<Achievement> baseline = listOfLists.get(0);
 
-    List<Achievement> user1Achievements = separatedAchievements.get(0);
-    for (Achievement achievement : user1Achievements) {
-      for (int i = 1; i < userCount; i++) {
-        for (Achievement otherAchievement : separatedAchievements.get(i)) {
-          if (achievement.equals(otherAchievement)) {
-            duplicates.add(achievement);
-            break;
+    //Stream<Achievement> stream = duplicates.stream();
+
+    // Loop the remaining lists and filter by duplicates
+    for (Achievement achieve : baseline) {
+      boolean duplicate = false;
+      for (int i = 1; i < listOfLists.size(); i++) {
+        /*
+        if (!listOfLists.get(i).contains(achieve)) {
+          duplicate = false;
+        }
+        */
+        for (Achievement innerAchieve : listOfLists.get(i)) {
+          if (achieve.equals(innerAchieve)) {
+            duplicate = true;
           }
         }
+      }
+
+      if (duplicate) {
+        duplicates.add(achieve);
       }
     }
 
