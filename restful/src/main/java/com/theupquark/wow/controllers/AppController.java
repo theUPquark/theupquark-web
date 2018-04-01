@@ -1,15 +1,19 @@
 package com.theupquark.wow.controllers;
 
+import com.mongodb.MongoClient;
 import com.theupquark.wow.adapters.WowAchievementAdapter;
 import com.theupquark.wow.models.Achievement;
 import com.theupquark.wow.models.AchievementsProfile;
 import com.theupquark.wow.models.WebAppSettings;
+import com.theupquark.wow.mongo.AchievementStore;
 
 import java.util.List;
-
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +27,9 @@ public class AppController {
   private WowAchievementAdapter wowAchievementAdapter;
 
   public AppController() {
-    this.wowAchievementAdapter = new WowAchievementAdapter();
+    this.wowAchievementAdapter = 
+      new WowAchievementAdapter(new AchievementStore(
+            new MongoTemplate(new MongoClient("localhost"), "wow"))); 
 
   }
 

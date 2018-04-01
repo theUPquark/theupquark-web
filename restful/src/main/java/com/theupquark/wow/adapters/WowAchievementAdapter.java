@@ -7,6 +7,7 @@ import com.theupquark.wow.models.AchievementsProfile;
 import com.theupquark.wow.models.BNetAccount;
 import com.theupquark.wow.models.Character;
 import com.theupquark.wow.models.WebAppSettings;
+import com.theupquark.wow.mongo.AchievementStore;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,14 @@ public class WowAchievementAdapter {
 
   private ObjectMapper objectMapper;
   private String uriTemplate;
+  private String uriAchievementTemplate;
+  private AchievementStore achievementStore;
 
-  public WowAchievementAdapter() {
+  public WowAchievementAdapter(AchievementStore achievementStore) {
+    this.achievementStore = achievementStore;
     this.objectMapper = new ObjectMapper();
     this.uriTemplate = "https://us.api.battle.net/wow/character/%s/%s?fields=achievements&locale=en_US&apikey=%s";
+    this.uriAchievementTemplate = "https://us.api.battle.net/wow/achievement/%s?locale=en_US&apikey=%s";
   }
 
   public String queryAchievements(String name, String server, String apiKey) {
@@ -94,6 +99,8 @@ public class WowAchievementAdapter {
       list.add(achievementList); 
     }
 
+    List<Achievement> matches = this.obtainDuplicates(list);
+    this.mapAdditionalFields(matches, apiKey);
 
     return this.obtainDuplicates(list);
   }
@@ -149,4 +156,13 @@ public class WowAchievementAdapter {
     return duplicates;
   }
 
+  public void mapAdditionalFields(List<Achievement> achievements, String apiKey) {
+    for (Achievement achievement : achievements) {
+      Achievement detailedAchievement = this.achievementStore.getAchievementDetails(achievement.getId(), apiKey);
+
+      achievement.setTitle(detailedAchievement.getTitle());
+      achievement.setPoints(detailedAchievement.getPoints());
+      achievement.setDescription(detailedAchievement.getDescription());
+    }
+  }
 }

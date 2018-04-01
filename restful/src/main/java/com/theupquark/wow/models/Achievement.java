@@ -10,12 +10,41 @@ public class Achievement {
   //milliseconds
   private String time;
   private String id;
-  private List<Character> earnedBy;
+  private String title;
+  private String points;
+  private String description;
 
   public Achievement() {
     this.time = "0";
     this.id = "0";
-    this.earnedBy = new ArrayList<>();
+    this.title = "";
+    this.points = "";
+    this.description = "";
+
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public String getTitle() {
+    return this.title;
+  }
+
+  public void setPoints(String points) {
+    this.points = points;
+  }
+
+  public String getPoints() {
+    return this.points;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDescription() {
+    return this.description;
   }
 
   public void setTime(String time) {
@@ -32,14 +61,6 @@ public class Achievement {
 
   public String getId() {
     return this.id;
-  }
-
-  public void setEarnedBy(List<Character> earnedBy) {
-    this.earnedBy = earnedBy;
-  }
-
-  public List<Character> getEarnedBy() {
-    return this.earnedBy;
   }
 
   public boolean equals(Achievement other) {
