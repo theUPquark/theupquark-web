@@ -72,6 +72,13 @@ public class Achievement {
     return false;
   }
 
+  /**
+   * Difference in time to consider achievements occuring at the same time
+   *
+   * @param first time of first achievement
+   * @param second time of other achievement
+   * @return true if within time tolerance value
+   */
   public static boolean timeTolerance(String first, String second) {
     long difference = Long.parseLong(first) - Long.parseLong(second);
     if (Math.abs(difference) <= 60000) {

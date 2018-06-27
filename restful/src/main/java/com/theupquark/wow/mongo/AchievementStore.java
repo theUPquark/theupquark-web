@@ -11,6 +11,10 @@ import java.util.Optional;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+/**
+ * This is the connection to the mongo database storing information about 
+ * Achievements.
+ */
 public class AchievementStore {
 
   private ObjectMapper objectMapper;
@@ -18,6 +22,12 @@ public class AchievementStore {
   private List<Achievement> knownAchievements;
   private String uriAchievementTemplate;
 
+  /**
+   * Constructor.
+   * Connects to mongo and pulls out the currently known achievements into memory.
+   *
+   * @param mongoTemplate connection to mongo
+   */
   public AchievementStore(MongoTemplate mongoTemplate) {
     this.objectMapper = new ObjectMapper();
     this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -27,6 +37,13 @@ public class AchievementStore {
     this.knownAchievements = this.mongoTemplate.findAll(Achievement.class);
   }
 
+  /**
+   * Obtain additional information about an achievement. Attempt to obtain 
+   * details from data store before making an API call
+   *
+   * @param id achievement identifier
+   * @param apiKey wow web api key
+   */
   public Achievement getAchievementDetails(String id, String apiKey) {
     Optional<Achievement> optionalAchievement = this.knownAchievements.stream()
       .filter(achie -> achie.getId() == id)
@@ -48,6 +65,13 @@ public class AchievementStore {
     return queriedAchievement;
   }
 
+  /**
+   * API call to obtain information about an Achievement
+   *
+   * @param id achievement id
+   * @param apiKey wow web api key
+   * @return Achievement with additional data
+   */
   public Achievement queryAchievementDetails(String id, String apiKey) {
     try {
       return this.objectMapper.readValue(

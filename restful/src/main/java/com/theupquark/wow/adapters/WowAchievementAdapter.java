@@ -29,6 +29,14 @@ public class WowAchievementAdapter {
     this.uriAchievementTemplate = "https://us.api.battle.net/wow/achievement/%s?locale=en_US&apikey=%s";
   }
 
+  /**
+   * This method is basically dead
+   *
+   * @param name character name
+   * @param server server name
+   * @param apiKey wow api key
+   * @return informational string testing api call
+   */
   public String queryAchievements(String name, String server, String apiKey) {
 
     try {
@@ -50,6 +58,14 @@ public class WowAchievementAdapter {
     }
   }
 
+  /**
+   * Use a Character's name and server to obtain a list the achievements
+   * profile.
+   *
+   * @param name character name
+   * @param server server name
+   * @param apiKey wow web api key
+   */
   public AchievementsProfile queryAchievementsProfile(String name, String server, String apiKey) {
 
     try {
@@ -70,17 +86,24 @@ public class WowAchievementAdapter {
     }
 
   }
-  
+
+  /**
+   * Takes the AchievementsProfile, and return a list of Achievements.
+   *
+   * @param achievementsProfile profile containing achievement ids and timestamps
+   * @return list of Achievement
+   */  
   public List<Achievement> mapAchievements(AchievementsProfile achievementsProfile) {
 
-    int achievementsCompleted = achievementsProfile.getAchievements().get("achievementsCompleted").size();
+    int achievementsCompleted = 
+      achievementsProfile.getAchievements().get("achievementsCompleted").size();
 
     List<Achievement> achievements = new ArrayList<>();
 
+    // Populate fields for Id and Time
+    // Title, points, description will come later once lists are compared
     for (int i = 0; i < achievementsCompleted; i++) {
       Achievement achievement = achievementsProfile.getAchievementByIndex(i);
-      //TODO Add character name/server to each achievement
-      //achievement.setEarnedBy(new ArrayList<>().add(new Character()));
       achievements.add(achievement);
     }
 
@@ -88,14 +111,23 @@ public class WowAchievementAdapter {
   }
 
 
+  /**
+   * Take in a list of characters and return common list of achievements
+   *
+   * @param characters list of characters
+   * @param apiKey wow web api key
+   * @return list of achievemnts completed by characters together
+   */
   public List<Achievement> compare(List<Character> characters, String apiKey) {
 
     List<List<Achievement>> list = new ArrayList<>();
 
     for (Character character : characters) {
-      List<Achievement> achievementList = this.mapAchievements(this.queryAchievementsProfile(
-            character.getName(), character.getServer(), apiKey
-            ));
+      List<Achievement> achievementList = 
+        this.mapAchievements(this.queryAchievementsProfile(
+            character.getName(), 
+            character.getServer(), 
+            apiKey));
       list.add(achievementList); 
     }
 
@@ -105,22 +137,36 @@ public class WowAchievementAdapter {
     return this.obtainDuplicates(list);
   }
 
+  /**
+   * Temp method to obtain and compare achievements
+   *
+   * @param apiKey wow web api key
+   * @return list of achievements that match by time between characters
+   */
   public List<Achievement> test(String apiKey) {
     List<Character> characters = new ArrayList<>();
-    Character tuei = new Character();
-    tuei.setServer("argent-dawn");
-    tuei.setName("errai");
+    Character errai = new Character();
+    errai.setServer("argent-dawn");
+    errai.setName("errai");
     
     Character rhetaiya = new Character();
     rhetaiya.setServer("argent-dawn");
     rhetaiya.setName("rhetaiya");
 
-    characters.add(tuei);
+    characters.add(errai);
     characters.add(rhetaiya);
 
     return this.compare(characters, apiKey);
   }
 
+  /**
+   * This method takes in a list of list of achievements.
+   * The returned Achievement list only obtains those where the same achievement
+   * (id) was completed at the same time (within a margin or error)
+   *
+   * @param listOfLists list of list of achievements
+   * @return reduced list of achievements
+   */
   public List<Achievement> obtainDuplicates(List<List<Achievement>> listOfLists) {
 
     for (List<Achievement> list : listOfLists) {
@@ -156,6 +202,12 @@ public class WowAchievementAdapter {
     return duplicates;
   }
 
+  /**
+   * Include information to each achievement, such as title, points, etc.
+   *
+   * @param achievements list to include fields to
+   * @param apiKey wow web api key
+   */
   public void mapAdditionalFields(List<Achievement> achievements, String apiKey) {
     for (Achievement achievement : achievements) {
       Achievement detailedAchievement = this.achievementStore.getAchievementDetails(achievement.getId(), apiKey);
