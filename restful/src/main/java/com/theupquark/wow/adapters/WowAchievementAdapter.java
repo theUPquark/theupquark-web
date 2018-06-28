@@ -180,17 +180,12 @@ public class WowAchievementAdapter {
 
     // Loop the remaining lists and filter by duplicates
     for (Achievement achieve : baseline) {
-      boolean duplicate = false;
+      boolean duplicate = true;
+      // If any other list doesn't contain achievement it's not a duplicate
       for (int i = 1; i < listOfLists.size(); i++) {
-        /*
+        // Uses equals method in Achievement overrided to check ids and time only
         if (!listOfLists.get(i).contains(achieve)) {
           duplicate = false;
-        }
-        */
-        for (Achievement innerAchieve : listOfLists.get(i)) {
-          if (achieve.equals(innerAchieve)) {
-            duplicate = true;
-          }
         }
       }
 
