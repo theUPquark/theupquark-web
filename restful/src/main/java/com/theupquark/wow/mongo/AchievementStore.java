@@ -8,7 +8,8 @@ import com.theupquark.wow.models.Achievement;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 /**
@@ -17,6 +18,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
  */
 public class AchievementStore {
 
+  private static final Logger LOG = LoggerFactory.getLogger(
+      AchievementStore.class);
   private ObjectMapper objectMapper;
   private MongoTemplate mongoTemplate;
   private List<Achievement> knownAchievements;
@@ -35,6 +38,23 @@ public class AchievementStore {
     this.uriAchievementTemplate = "https://us.api.battle.net/wow/achievement/%s?locale=en_US&apikey=%s";
 
     this.knownAchievements = this.mongoTemplate.findAll(Achievement.class);
+    LOG.info("Started {} with {} known achievements",
+        this.getClass().getSimpleName(), this.knownAchievements.size());
+
+    if (LOG.isTraceEnabled()) {
+      for (Achievement achie : this.knownAchievements) {
+        LOG.trace("Known achie id: {}", achie.getId());
+      }
+    }
+  }
+
+  /**
+   * Really only for testing
+   *
+   * @param knownAchievements list of achievments
+   */
+  protected void setKnownAchievements(List<Achievement> knownAchievements) {
+    this.knownAchievements = knownAchievements;
   }
 
   /**
@@ -45,20 +65,33 @@ public class AchievementStore {
    * @param apiKey wow web api key
    */
   public Achievement getAchievementDetails(String id, String apiKey) {
+    // Check achievement list in memory first
     Optional<Achievement> optionalAchievement = this.knownAchievements.stream()
-      .filter(achie -> achie.getId() == id)
+      .filter(achie -> id.equals(achie.getId()))
       .findFirst();
 
     if (optionalAchievement.isPresent()) {
+      LOG.info("Found achievement {} within store already.", id);
       return optionalAchievement.get();
     }
 
+    // Check achievement list within mongodb
+    Achievement dbAchievement = this.mongoTemplate.findById(
+      id, Achievement.class);
+    if (dbAchievement != null) {
+      LOG.warn("Somehow missing achievement {} locally but its in db", id);
+      this.knownAchievements.add(dbAchievement);
+      return dbAchievement;
+    }
+
+    // Seems we're missing details here, so pull from API
     Achievement queriedAchievement = this.queryAchievementDetails(id, apiKey);
 
     if (queriedAchievement == null) {
       return null;
     }
 
+    LOG.info("Adding achievement {} to known list and mongo", id);
     this.knownAchievements.add(queriedAchievement);
     this.mongoTemplate.insert(queriedAchievement);
 

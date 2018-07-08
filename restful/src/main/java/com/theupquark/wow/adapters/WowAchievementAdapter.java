@@ -15,9 +15,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WowAchievementAdapter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(
+      WowAchievementAdapter.class);
   private ObjectMapper objectMapper;
   private String uriTemplate;
   private AchievementStore achievementStore;
@@ -65,7 +69,7 @@ public class WowAchievementAdapter {
       return achievementProfile;
 
     } catch (Throwable t) {
-      System.out.println(t.toString());
+      LOG.error(t.toString());
       return null;
     }
 
@@ -115,12 +119,15 @@ public class WowAchievementAdapter {
             request.getRegion(),
             request.getLocale(),
             apiKey));
-      list.add(achievementList); 
+      list.add(achievementList);
+      LOG.debug("Found {} achievements for {}",
+          achievementList, character.getName());
     }
 
     List<Achievement> matches = this.obtainDuplicates(list);
     this.mapAdditionalFields(matches, apiKey);
-
+    LOG.debug("Between the {} characters, {} achievements were "
+        + "completed concurrently", list.size(), matches.size());
     return matches;
   }
 
@@ -147,6 +154,10 @@ public class WowAchievementAdapter {
     request.setRegion("us");
     request.setCharacters(characters);
 
+    LOG.debug("Testing concurrent achievements from {}-{} and {}-{}",
+        rhetaiya.getName(), rhetaiya.getServer(),
+        errai.getName(), errai.getServer(),
+        request.getRegion());
     return this.compare(request, apiKey);
   }
 
@@ -159,10 +170,6 @@ public class WowAchievementAdapter {
    * @return reduced list of achievements
    */
   public List<Achievement> obtainDuplicates(List<List<Achievement>> listOfLists) {
-
-    for (List<Achievement> list : listOfLists) {
-      System.out.println("List with " + list.size() + " achievements");
-    }
     // Use the first list as a baseline
     List<Achievement> duplicates = new ArrayList<>();
     List<Achievement> baseline = listOfLists.get(0);
@@ -182,6 +189,7 @@ public class WowAchievementAdapter {
 
       if (duplicate) {
         duplicates.add(achieve);
+        LOG.trace("Found duplicate achievement, id: {}", achieve.getId());
       }
     }
 
