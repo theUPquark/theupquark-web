@@ -53,6 +53,7 @@ public class WowAchievementAdapter {
     try {
       if (locale == null || locale.isEmpty()) {
         locale = this.defaultLocalePerRegion.get(region);
+        LOG.trace("No locale found. Using default of {} for {}.", locale, region);
       }
 
       AchievementsProfile achievementProfile = 
@@ -121,7 +122,7 @@ public class WowAchievementAdapter {
             apiKey));
       list.add(achievementList);
       LOG.debug("Found {} achievements for {}",
-          achievementList, character.getName());
+          achievementList.size(), character.getName());
     }
 
     List<Achievement> matches = this.obtainDuplicates(list);
