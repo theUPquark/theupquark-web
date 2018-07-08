@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.theupquark.wow.models.Achievement;
 import com.theupquark.wow.models.AchievementsProfile;
-import com.theupquark.wow.models.BNetAccount;
 import com.theupquark.wow.models.Character;
-import com.theupquark.wow.models.WebAppSettings;
+import com.theupquark.wow.models.CompareCharacterRequest;
 import com.theupquark.wow.mongo.AchievementStore;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,43 +20,18 @@ public class WowAchievementAdapter {
 
   private ObjectMapper objectMapper;
   private String uriTemplate;
-  private String uriAchievementTemplate;
   private AchievementStore achievementStore;
+  private Map<String, String> defaultLocalePerRegion;
 
   public WowAchievementAdapter(AchievementStore achievementStore) {
     this.achievementStore = achievementStore;
     this.objectMapper = new ObjectMapper();
-    this.uriTemplate = "https://us.api.battle.net/wow/character/%s/%s?fields=achievements&locale=en_US&apikey=%s";
-    this.uriAchievementTemplate = "https://us.api.battle.net/wow/achievement/%s?locale=en_US&apikey=%s";
-  }
-
-  /**
-   * This method is basically dead
-   *
-   * @param name character name
-   * @param server server name
-   * @param apiKey wow api key
-   * @return informational string testing api call
-   */
-  public String queryAchievements(String name, String server, String apiKey) {
-
-    try {
-      AchievementsProfile achievementProfile = 
-        objectMapper.readValue(
-            URI.create(
-              String.format(
-                this.uriTemplate, 
-                server, 
-                name, 
-                apiKey)).toURL(), AchievementsProfile.class);
-
-
-      return "AchievementProfile for with " + achievementProfile.getAchievements().get("achievementsCompleted").size() + " achievement entries.";
-
-    } catch (Throwable t) {
-      System.out.println(t.getMessage());
-      return t.getMessage();
-    }
+    this.uriTemplate = "https://%s.api.battle.net/wow/character/%s/%s?fields=achievements&locale=%s&apikey=%s";
+    this.defaultLocalePerRegion = new HashMap<>();
+    this.defaultLocalePerRegion.put("us", "en_US");
+    this.defaultLocalePerRegion.put("eu", "en_GB");
+    this.defaultLocalePerRegion.put("kr", "ko_KR");
+    this.defaultLocalePerRegion.put("tw", "zh_TW");
   }
 
   /**
@@ -64,24 +40,32 @@ public class WowAchievementAdapter {
    *
    * @param name character name
    * @param server server name
+   * @param region region - us, eu, etc
+   * @param locale locale
    * @param apiKey wow web api key
    */
-  public AchievementsProfile queryAchievementsProfile(String name, String server, String apiKey) {
-
+  public AchievementsProfile queryAchievementsProfile(
+      String name, String server, String region, String locale, String apiKey) {
     try {
+      if (locale == null || locale.isEmpty()) {
+        locale = this.defaultLocalePerRegion.get(region);
+      }
+
       AchievementsProfile achievementProfile = 
         objectMapper.readValue(
             URI.create(
               String.format(
-                this.uriTemplate, 
+                this.uriTemplate,
+                region, 
                 server, 
-                name, 
+                name,
+                locale,
                 apiKey)).toURL(), AchievementsProfile.class);
 
       return achievementProfile;
 
     } catch (Throwable t) {
-      System.out.println(t.getMessage());
+      System.out.println(t.toString());
       return null;
     }
 
@@ -114,19 +98,22 @@ public class WowAchievementAdapter {
   /**
    * Take in a list of characters and return common list of achievements
    *
-   * @param characters list of characters
+   * @param request contains list of characters and defines region
    * @param apiKey wow web api key
    * @return list of achievemnts completed by characters together
    */
-  public List<Achievement> compare(List<Character> characters, String apiKey) {
+  public List<Achievement> compare(
+      CompareCharacterRequest request, String apiKey) {
 
     List<List<Achievement>> list = new ArrayList<>();
 
-    for (Character character : characters) {
+    for (Character character : request.getCharacters()) {
       List<Achievement> achievementList = 
         this.mapAchievements(this.queryAchievementsProfile(
             character.getName(), 
-            character.getServer(), 
+            character.getServer(),
+            request.getRegion(),
+            request.getLocale(),
             apiKey));
       list.add(achievementList); 
     }
@@ -134,7 +121,7 @@ public class WowAchievementAdapter {
     List<Achievement> matches = this.obtainDuplicates(list);
     this.mapAdditionalFields(matches, apiKey);
 
-    return this.obtainDuplicates(list);
+    return matches;
   }
 
   /**
@@ -156,7 +143,11 @@ public class WowAchievementAdapter {
     characters.add(errai);
     characters.add(rhetaiya);
 
-    return this.compare(characters, apiKey);
+    CompareCharacterRequest request = new CompareCharacterRequest();
+    request.setRegion("us");
+    request.setCharacters(characters);
+
+    return this.compare(request, apiKey);
   }
 
   /**

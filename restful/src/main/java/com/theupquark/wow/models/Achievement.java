@@ -63,9 +63,10 @@ public class Achievement {
     return this.id;
   }
 
-  public boolean equals(Achievement other) {
-    if (other instanceof Achievement) {
-
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Achievement) {
+      Achievement other = (Achievement) obj;
       return this.timeTolerance(this.time, other.time)
         && Objects.equals(this.id, other.id);
     }

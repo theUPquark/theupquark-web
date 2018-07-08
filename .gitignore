@@ -12,6 +12,7 @@ coverage
 
 # production
 build
+*application.properties
 
 # misc
 .DS_Store

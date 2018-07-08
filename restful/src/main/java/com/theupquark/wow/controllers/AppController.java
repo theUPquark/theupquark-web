@@ -4,7 +4,7 @@ import com.mongodb.MongoClient;
 import com.theupquark.wow.adapters.WowAchievementAdapter;
 import com.theupquark.wow.models.Achievement;
 import com.theupquark.wow.models.AchievementsProfile;
-import com.theupquark.wow.models.WebAppSettings;
+import com.theupquark.wow.models.CompareCharacterRequest;
 import com.theupquark.wow.mongo.AchievementStore;
 
 import java.util.List;
@@ -41,10 +41,21 @@ public class AppController {
   }
 
 
-  @RequestMapping("/query/{server}/{character}/")
+  /**
+   * Returns profile
+   * @param server server
+   * @param character character name
+   * @param region region
+   * @return AchievementsProfile
+   */
+  @RequestMapping("/query/{region}/{server}/{character}/")
   @ResponseBody
-  public AchievementsProfile query(@PathVariable(value="server") String server, @PathVariable(value="character") String character) {
-    return this.wowAchievementAdapter.queryAchievementsProfile(character, server, this.apiKey);
+  public AchievementsProfile query(
+      @PathVariable(value="server") String server, 
+      @PathVariable(value="character") String character, 
+      @PathVariable(value="region") String region) {
+    return this.wowAchievementAdapter.queryAchievementsProfile(
+        character, server, region, "en_US", this.apiKey);
   }
 
 
@@ -52,10 +63,18 @@ public class AppController {
       SpringApplication.run(AppController.class, args);
   }
 
+  /**
+   * Takes in request and returns the achievements that all characters
+   * would have completed together
+   *
+   * @param request contains character and region information
+   * @return list of achievements
+   */
   @RequestMapping("/compare")
   @ResponseBody
-  public String compare(@RequestBody WebAppSettings webAppSettings) {
+  public List<Achievement> compare(
+      @RequestBody CompareCharacterRequest request) {
 
-    return "Success";
+    return this.wowAchievementAdapter.compare(request, this.apiKey);
   }
 }
