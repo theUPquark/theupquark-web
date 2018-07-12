@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import { withStyles } from '@material-ui/core/styles';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import Achievement from './components/Achievement'
 class App extends Component {
   render() {
     return (
@@ -16,6 +19,9 @@ class App extends Component {
         <p className="App-intro">
           Ok, did that.
         </p>
+        <Achievement/>
+        <Achievement/>
+        <Achievement/>
       </div>
     );
   }
