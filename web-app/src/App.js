@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import axios from 'axios'
 import './App.css';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -23,6 +23,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
+    fontSize: '29px',
   }
 })
 
@@ -31,14 +32,28 @@ class App extends Component {
     region: 'us',
     characters: [
       {
-        name: 'rhetiaya',
+        name: 'rhetaiya',
         server: 'argent-dawn',
       },
       {
         name: 'errai',
         server: 'argent-dawn',
       },
-    ]
+    ],
+    achievements: [
+      {
+        title: 'Crab Battle',
+        points: '10',
+        description: 'Witness the snake battle the crab. Is it a cave demon? Just remember your CQC. (rip)',
+        time: '2018',
+      },
+      {
+        title: 'Crab Battle',
+        points: '10',
+        description: 'Witness the snake battle the crab. Is it a cave demon? Just remember your CQC. (rip)',
+        time: '2018',
+      },
+    ],
   }
   handleChange = name => event => {
     this.setState({
@@ -57,9 +72,9 @@ class App extends Component {
 
   characterInput = (id) => {
     return (
-      <div key={`char-${id}`}>
+      <Grid item xs={12} key={`char-${id}`}>
         <Button mini variant="fab" color="secondary" aria-label="Add"
-          className={this.props.classes.character}
+          className={this.props.classes.button}
           onClick={() => {this.deleteCharacter(id)}}>-</Button>
         <TextField
           label="name"
@@ -78,7 +93,7 @@ class App extends Component {
           value={this.state.characters[id].server}
           onChange={this.handleCharacter('server', id)}
         />
-      </div>
+      </Grid>
     )
   }
 
@@ -106,46 +121,78 @@ class App extends Component {
 
   compareAchievementsRequest = () => {
     console.log('send request')
+    axios({
+      method: 'POST',
+      url: 'http://localhost:8080/compare',
+      data: {
+        characters: this.state.characters,
+        region: this.state.region,
+      },
+    }).then((response) => {
+      console.log('success')
+      this.setState({
+        achievements: response.data
+      })
+    }).catch((error) => {
+      console.log(error)
+    })
   }
 
+  pushAchievement = (idx, achieve) => {
+    return (
+      <Achievement key={idx}
+        title={achieve.title}
+        points={achieve.points}
+        desc={achieve.description}
+      />
+    )
+  }
   render() {
     let chars = []
     for (let i = 0; i < this.state.characters.length; i++) {
       chars.push(this.characterInput(i))
     }
+
+    let achives = []
+    for (let i = 0; i < this.state.achievements.length; i++) {
+      achives.push(this.pushAchievement(i, this.state.achievements[i]))
+    }
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-      <form className={this.props.classes.form}>
-        <Select
-          name="region"
-          label="region"
-          inputProps={{name: 'region', id:'region'}}
-          value={this.state.region}
-          onChange={this.handleChange('region')}
-        >
-          <MenuItem value={'us'}>US</MenuItem>
-          <MenuItem value={'eu'}>EU</MenuItem>
-          <MenuItem value={'kr'}>KR</MenuItem>
-          <MenuItem value={'tw'}>TW</MenuItem>
-        </Select>
+      <Grid container className={this.props.classes.form}>
+        <Grid item xs={12}>
+          <Select
+            name="region"
+            label="region"
+            inputProps={{name: 'region', id:'region'}}
+            value={this.state.region}
+            onChange={this.handleChange('region')}
+          >
+            <MenuItem value={'us'}>US</MenuItem>
+            <MenuItem value={'eu'}>EU</MenuItem>
+            <MenuItem value={'kr'}>KR</MenuItem>
+            <MenuItem value={'tw'}>TW</MenuItem>
+          </Select>
+        </Grid>
         {chars}
-        <Button mini variant="fab" color="primary" aria-label="Add"
-          onClick={this.addCharacter}>
-        +
-        </Button>
-        <Button size="small" color="primary" aria-label="Add"
-          onClick={this.compareAchievementsRequest}>
-        Compare Achievements
-        </Button>
-      </form>
+        <Grid item xs={12}>
+          <Button mini variant="fab" color="primary" aria-label="Add"
+            className={this.props.classes.button}
+            style={{right: '230px'}}
+            onClick={this.addCharacter}>
+          +
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="outlined" size="small" color="primary" aria-label="Add"
+            onClick={this.compareAchievementsRequest}>
+          Compare Achievements
+          </Button>
+        </Grid>
+      </Grid>
+      <hr/>
       <GridList>
-        <Achievement/>
-        <Achievement/>
-        <Achievement/>
+      {achives}
       </GridList>
       </div>
     );

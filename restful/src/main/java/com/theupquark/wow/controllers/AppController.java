@@ -14,6 +14,8 @@ import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,11 +72,14 @@ public class AppController {
    * @param request contains character and region information
    * @return list of achievements
    */
-  @RequestMapping("/compare")
+  @CrossOrigin(origins = "http://localhost:3000")
+  @RequestMapping(value = "/compare", method = RequestMethod.POST)
   @ResponseBody
-  public List<Achievement> compare(
+  public ResponseEntity<List<Achievement>> compare(
       @RequestBody CompareCharacterRequest request) {
 
-    return this.wowAchievementAdapter.compare(request, this.apiKey);
+    return new ResponseEntity<List<Achievement>>(
+        this.wowAchievementAdapter.compare(request, this.apiKey),
+        HttpStatus.OK);
   }
 }
