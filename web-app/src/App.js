@@ -4,19 +4,21 @@ import './App.css';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+//import GridListTile from '@material-ui/core/GridListTile';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import Input from '@material-ui/core/Input';
+//import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
+//import IconButton from '@material-ui/core/IconButton';
+//import Icon from '@material-ui/core/Icon';
+import Paper from '@material-ui/core/Paper'
 import Achievement from './components/Achievement'
 
 const styles = theme => ({
   form: {
-    color: 'green',
+    display: 'flex',
+    justifyContent: 'center',
   },
   character: {
     margin: theme.spacing.unit,
@@ -159,41 +161,43 @@ class App extends Component {
     }
     return (
       <div className="App">
-      <Grid container className={this.props.classes.form}>
-        <Grid item xs={12}>
-          <Select
-            name="region"
-            label="region"
-            inputProps={{name: 'region', id:'region'}}
-            value={this.state.region}
-            onChange={this.handleChange('region')}
-          >
-            <MenuItem value={'us'}>US</MenuItem>
-            <MenuItem value={'eu'}>EU</MenuItem>
-            <MenuItem value={'kr'}>KR</MenuItem>
-            <MenuItem value={'tw'}>TW</MenuItem>
-          </Select>
+        <Grid container className={this.props.classes.form}>
+          <Paper>
+            <Grid item xs={12}>
+              <Select
+                name="region"
+                label="region"
+                inputProps={{name: 'region', id:'region'}}
+                value={this.state.region}
+                onChange={this.handleChange('region')}
+              >
+                <MenuItem value={'us'}>US</MenuItem>
+                <MenuItem value={'eu'}>EU</MenuItem>
+                <MenuItem value={'kr'}>KR</MenuItem>
+                <MenuItem value={'tw'}>TW</MenuItem>
+              </Select>
+            </Grid>
+            {chars}
+            <Grid item xs={12}>
+              <Button mini variant="fab" color="primary" aria-label="Add"
+                className={this.props.classes.button}
+                onClick={this.addCharacter}>
+              +
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="outlined" size="small" color="primary"
+                aria-label="Add"
+                onClick={this.compareAchievementsRequest}>
+              Compare Achievements
+              </Button>
+            </Grid>
+          </Paper>
         </Grid>
-        {chars}
-        <Grid item xs={12}>
-          <Button mini variant="fab" color="primary" aria-label="Add"
-            className={this.props.classes.button}
-            style={{right: '230px'}}
-            onClick={this.addCharacter}>
-          +
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="outlined" size="small" color="primary" aria-label="Add"
-            onClick={this.compareAchievementsRequest}>
-          Compare Achievements
-          </Button>
-        </Grid>
-      </Grid>
-      <hr/>
-      <GridList>
-      {achives}
-      </GridList>
+        <hr/>
+        <GridList>
+          {achives}
+        </GridList>
       </div>
     );
   }

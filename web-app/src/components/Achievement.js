@@ -47,7 +47,8 @@ class Achievement extends React.Component {
   render() {
     return (
       <div className={this.props.classes.root}>
-        <img src={AchievementFrame} className={this.props.classes.image}/>
+        <img src={AchievementFrame} alt=""
+          className={this.props.classes.image}/>
         <div className={this.props.classes.title}>
           {this.props.title}
         </div>
