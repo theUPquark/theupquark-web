@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 
 public class WowAchievementAdapter {
 
@@ -48,6 +49,7 @@ public class WowAchievementAdapter {
    * @param locale locale
    * @param apiKey wow web api key
    */
+  @Cacheable("achieve-profiles")
   public AchievementsProfile queryAchievementsProfile(
       String name, String server, String region, String locale, String apiKey) {
     try {
@@ -82,6 +84,7 @@ public class WowAchievementAdapter {
    * @param achievementsProfile profile containing achievement ids and timestamps
    * @return list of Achievement
    */  
+  @Cacheable("achievements-by-profile")
   public List<Achievement> mapAchievements(AchievementsProfile achievementsProfile) {
 
     int achievementsCompleted = 
