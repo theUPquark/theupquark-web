@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import axios from 'axios'
 import './App.css';
 import { withStyles } from '@material-ui/core/styles';
+import FormControl from '@material-ui/core/FormControl'
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
 //import GridListTile from '@material-ui/core/GridListTile';
+import InputLabel from '@material-ui/core/InputLabel'
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
+import Typography from '@material-ui/core/Typography'
 import MenuItem from '@material-ui/core/MenuItem';
 //import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
@@ -31,6 +34,7 @@ const styles = theme => ({
 
 class App extends Component {
   state = {
+    loading: false,
     region: 'us',
     characters: [
       {
@@ -122,7 +126,9 @@ class App extends Component {
   }
 
   compareAchievementsRequest = () => {
-    console.log('send request')
+    this.setState({
+      loading: true
+    })
     axios({
       method: 'POST',
       url: 'http://localhost:8080/compare',
@@ -133,9 +139,13 @@ class App extends Component {
     }).then((response) => {
       console.log('success')
       this.setState({
+        loading: false,
         achievements: response.data
       })
     }).catch((error) => {
+      this.setState({
+        loading: false
+      })
       console.log(error)
     })
   }
@@ -162,20 +172,38 @@ class App extends Component {
     return (
       <div className="App">
         <Grid container className={this.props.classes.form}>
+          <Typography variant="display1">
+            Warcraft Achievement Comparator
+          </Typography>
+          <Typography variant="body2"
+            style={{
+              width: '100%',
+              paddingBottom: '15px'
+            }}
+          >
+            Designate multiple characters to query, and view a selection of
+            achievements that all characters completed together.
+          </Typography>
           <Paper>
             <Grid item xs={12}>
-              <Select
-                name="region"
-                label="region"
-                inputProps={{name: 'region', id:'region'}}
-                value={this.state.region}
-                onChange={this.handleChange('region')}
-              >
-                <MenuItem value={'us'}>US</MenuItem>
-                <MenuItem value={'eu'}>EU</MenuItem>
-                <MenuItem value={'kr'}>KR</MenuItem>
-                <MenuItem value={'tw'}>TW</MenuItem>
-              </Select>
+              <FormControl>
+                <InputLabel shrink htmlFor="achive-form-region">
+                  Region
+                </InputLabel>
+                <Select
+                  id="achive-form-region"
+                  name="region"
+                  label="region"
+                  inputProps={{name: 'region', id:'region'}}
+                  value={this.state.region}
+                  onChange={this.handleChange('region')}
+                >
+                  <MenuItem value={'us'}>US</MenuItem>
+                  <MenuItem value={'eu'}>EU</MenuItem>
+                  <MenuItem value={'kr'}>KR</MenuItem>
+                  <MenuItem value={'tw'}>TW</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             {chars}
             <Grid item xs={12}>
@@ -188,6 +216,7 @@ class App extends Component {
             <Grid item xs={12}>
               <Button variant="outlined" size="small" color="primary"
                 aria-label="Add"
+                disabled={this.state.loading}
                 onClick={this.compareAchievementsRequest}>
               Compare Achievements
               </Button>
