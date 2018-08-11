@@ -41,8 +41,23 @@ const styles = theme => ({
     top: '35px',
     color: 'black',
   },
+  time: {
+    position: 'absolute',
+    width: '79px',
+    left: '424px',
+    top: '64px',
+    textAlign: 'center',
+    fontSize: '10px',
+    color: 'gold',
+    fontWeight: 'bold',
+  },
 })
 class Achievement extends React.Component {
+
+  convertTimeMilliToDate = (timeMilli) => {
+    let date = new Date(parseInt(timeMilli, 10))
+    return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear()
+  }
 
   render() {
     return (
@@ -58,6 +73,9 @@ class Achievement extends React.Component {
         <div className={this.props.classes.description}>
           {this.props.desc}
         </div>
+        <div className={this.props.classes.time}>
+          {this.convertTimeMilliToDate(this.props.time)}
+        </div>
       </div>
     )
   }
@@ -67,6 +85,7 @@ Achievement.defaultProps = {
   points: '10',
   title: 'Crab Battle',
   desc: 'Witness the snake battle the crab. Is it a cave demon? Just remember your CQC. (rip)',
+  time: '1270925040000',
   reward: undefined,
   icon: undefined,
 }

@@ -51,13 +51,13 @@ class App extends Component {
         title: 'Crab Battle',
         points: '10',
         description: 'Witness the snake battle the crab. Is it a cave demon? Just remember your CQC. (rip)',
-        time: '2018',
+        time: '1281060000000',
       },
       {
         title: 'Crab Battle',
         points: '10',
         description: 'Witness the snake battle the crab. Is it a cave demon? Just remember your CQC. (rip)',
-        time: '2018',
+        time: '1270925040000',
       },
     ],
   }
@@ -156,6 +156,7 @@ class App extends Component {
         title={achieve.title}
         points={achieve.points}
         desc={achieve.description}
+        time={achieve.time}
       />
     )
   }
