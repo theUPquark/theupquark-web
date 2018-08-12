@@ -20,6 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Main connection to the WoW Achievement Comparator backend
+ */
 @Controller
 @EnableAutoConfiguration
 @EnableCaching
@@ -30,6 +33,10 @@ public class AppController {
 
   private WowAchievementAdapter wowAchievementAdapter;
 
+  /**
+   * Default constructor setting up connection to
+   * mongo
+   */
   public AppController() {
     this.wowAchievementAdapter = 
       new WowAchievementAdapter(new AchievementStore(
@@ -38,6 +45,11 @@ public class AppController {
   }
 
 
+  /**
+   * Test endpoint that processes with a preset request
+   *
+   * @return common achievement list
+   */
   @RequestMapping("/test")
   @ResponseBody
   public List<Achievement> test() {

@@ -23,6 +23,8 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'center',
   },
+  achievementList: {
+  },
   character: {
     margin: theme.spacing.unit,
   },
@@ -225,7 +227,7 @@ class App extends Component {
           </Paper>
         </Grid>
         <hr/>
-        <GridList>
+        <GridList className={this.props.classes.achievementList}>
           {achives}
         </GridList>
       </div>
